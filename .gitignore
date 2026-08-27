@@ -1,0 +1,76 @@
+# ─── Python & Virtual Environments ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+*.egg-info/
+build/
+.coverage
+.cache/
+
+# ─── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.*
+.env.local
+.env.production
+!.env.example
+
+# ─── Node / Frontend ─────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# ─── ML Models & Datasets ────────────────────────────────────────────────────
+*.onnx
+
+*.pth
+*.engine
+*.torchscript
+
+# Ignore all model weights by default
+
+backend/models/*.onnx
+backend/models/weights/
+
+# EXCEPT our fine-tuned defect model weights:
+!backend/models/yolov8_defects.pt
+
+# Ignore generated datasets, training runs, and cache
+backend/dataset/
+backend/runs/
+runs/
+ultralytics/
+.ultralytics/
+backend/detection/third_party/bayespfl/runtime/
+
+# ─── Inspection Storage (Runtime Data) ────────────────────────────────────────
+backend/storage/*.sqlite3
+backend/storage/*.db
+backend/storage/*.json
+backend/storage/media/
+
+# ─── OS & Editor Files ────────────────────────────────────────────────────────
+.DS_Store
+*.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+uvicorn.log

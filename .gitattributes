@@ -1,0 +1,40 @@
+# ─── Inspect-Vision Git Attributes ───────────────────────────────────────────
+
+# Let Git automatically handle line endings for generic files based on OS
+* text=auto
+
+# ─── Code & Configuration (Force LF) ─────────────────────────────────────────
+*.py    text eol=lf
+*.js    text eol=lf
+*.jsx   text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.env   text eol=lf
+*.sh    text eol=lf
+*.toml  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+Makefile text eol=lf
+
+# ─── Binary Files (Strictly NO line-ending conversion) ───────────────────────
+# Machine Learning models
+*.pt      binary
+*.onnx    binary
+*.pth     binary
+*.engine  binary
+
+# Images & Media
+*.jpg     binary
+*.jpeg    binary
+*.png     binary
+*.gif     binary
+*.ico     binary
+
+# Fonts
+*.woff    binary
+*.woff2   binary

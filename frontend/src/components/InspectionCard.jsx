@@ -5,8 +5,12 @@
  * Shows status badge, severity score dial, defect count, and timestamp.
  */
 
+import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
-import { Activity, Calendar, CheckCircle2, Hash, ShieldAlert, ShieldCheck } from 'lucide-react'
+import {
+  Activity, Calendar, Check, CheckCircle2, Copy,
+  Hash, Printer, ShieldAlert, ShieldCheck
+} from 'lucide-react'
 import clsx from 'clsx'
 
 /**
@@ -61,6 +65,8 @@ function SeverityDial({ score }) {
  * }} props
  */
 export default function InspectionCard({ inspection, compact = false }) {
+  const [copied, setCopied] = useState(false)
+
   if (!inspection) return null
 
   const {
@@ -79,6 +85,29 @@ export default function InspectionCard({ inspection, compact = false }) {
   try {
     formattedDate = format(parseISO(timestamp), "d MMM yyyy · HH:mm 'UTC'")
   } catch { /* keep raw */ }
+
+  const handleCopySummary = async () => {
+    const summaryText = [
+      `📋 Акт инспекции: #${inspectionId}`,
+      `Статус: ${passed ? '✅ PASSED' : '❌ FAILED'}`,
+      `Оценка качества: ${severityScore}/100`,
+      `Дефектов обнаружено: ${totalDefects} шт.`,
+      defects.length > 0
+        ? `Детализация: ${defects.map(d => `${d.type} (${Math.round(d.confidence * 100)}%)`).join(', ')}`
+        : 'Дефекты отсутствуют',
+      `Дата инспекции: ${formattedDate}`,
+    ].join('\n')
+
+    try {
+      await navigator.clipboard.writeText(summaryText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2200)
+    } catch { /* fallback */ }
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
 
   return (
     <div className={clsx(
@@ -105,18 +134,43 @@ export default function InspectionCard({ inspection, compact = false }) {
             </div>
           </div>
 
-          {/* Status badge */}
-          {passed ? (
-            <div className="badge-passed">
-              <ShieldCheck size={14} />
-              Passed
-            </div>
-          ) : (
-            <div className="badge-failed">
-              <ShieldAlert size={14} />
-              Failed
-            </div>
-          )}
+          {/* Actions & Status badge */}
+          <div className="flex items-center gap-2">
+            {/* Copy button */}
+            <button
+              type="button"
+              onClick={handleCopySummary}
+              className="no-print p-1.5 rounded-xl border border-white/10 bg-surface-800 text-slate-400 hover:text-white hover:border-white/20 transition-all text-xs flex items-center gap-1.5"
+              title="Скопировать сводку в буфер обмена"
+            >
+              {copied ? <Check size={14} className="text-success-400" /> : <Copy size={14} />}
+              <span className="hidden sm:inline">{copied ? 'Скопировано!' : 'Копировать'}</span>
+            </button>
+
+            {/* Print button */}
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="no-print p-1.5 rounded-xl border border-white/10 bg-surface-800 text-slate-400 hover:text-white hover:border-white/20 transition-all text-xs flex items-center gap-1.5"
+              title="Печать официального акта ОТК"
+            >
+              <Printer size={14} />
+              <span className="hidden sm:inline">Печать</span>
+            </button>
+
+            {/* Status badge */}
+            {passed ? (
+              <div className="badge-passed">
+                <ShieldCheck size={14} />
+                Passed
+              </div>
+            ) : (
+              <div className="badge-failed">
+                <ShieldAlert size={14} />
+                Failed
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── Stats row ──────────────────────────────────────────────── */}

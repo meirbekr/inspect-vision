@@ -160,3 +160,36 @@
   max-width: 100%;
   height: auto;
 }
+
+/* ── Print utilities ──────────────────────────────────────────────────────── */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+  }
+
+  .printable-document {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+

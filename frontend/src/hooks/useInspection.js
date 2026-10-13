@@ -29,6 +29,10 @@ import {
   getHistory,
   inspectImage,
 } from '../utils/apiClient'
+import {
+  playInspectionPassedSound,
+  playInspectionFailedSound,
+} from '../utils/soundEffects'
 
 // ── State shape ───────────────────────────────────────────────────────────────
 const initialState = {
@@ -93,6 +97,11 @@ export function useInspection() {
     try {
       const result = await inspectImage(file)
       dispatch({ type: 'SET_CURRENT_INSPECTION', payload: result })
+      if (result.status === 'passed') {
+        playInspectionPassedSound()
+      } else {
+        playInspectionFailedSound()
+      }
       return result
     } catch (err) {
       dispatch({ type: 'SET_ERROR', payload: err.message })

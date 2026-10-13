@@ -40,9 +40,19 @@ function confidenceLabel(confidence) {
 }
 
 /**
- * @param {{ defects: Array, className?: string }} props
+ * @param {{
+ *   defects: Array,
+ *   selectedDefectIndex?: number|null,
+ *   onSelectDefect?: (index: number|null) => void,
+ *   className?: string
+ * }} props
  */
-export default function DefectList({ defects = [], className }) {
+export default function DefectList({
+  defects = [],
+  selectedDefectIndex = null,
+  onSelectDefect,
+  className,
+}) {
   if (!defects || defects.length === 0) {
     return (
       <div className={clsx(
@@ -52,8 +62,8 @@ export default function DefectList({ defects = [], className }) {
       )}>
         <CheckCircle2 size={40} className="text-success-400" />
         <div>
-          <p className="text-white font-semibold">No defects detected</p>
-          <p className="text-slate-500 text-sm mt-1">This product passed quality inspection.</p>
+          <p className="text-white font-semibold">Дефектов не обнаружено</p>
+          <p className="text-slate-500 text-sm mt-1">Деталь успешно прошла контроль качества.</p>
         </div>
       </div>
     )
@@ -65,13 +75,17 @@ export default function DefectList({ defects = [], className }) {
       <div className="flex items-center justify-between">
         <h3 className="section-title flex items-center gap-2">
           <Layers size={18} className="text-primary-400" />
-          Detected Defects
+          Найденные дефекты
         </h3>
         <span className="px-2.5 py-0.5 rounded-full bg-danger-500/20 text-danger-400
           border border-danger-500/30 text-xs font-bold">
-          {defects.length} found
+          {defects.length} шт.
         </span>
       </div>
+
+      <p className="text-slate-500 text-xs">
+        Наведите на дефект для фокусировки на изображении
+      </p>
 
       {/* ── Defect cards ─────────────────────────────────────────────── */}
       <div className="flex flex-col gap-2">
@@ -81,11 +95,20 @@ export default function DefectList({ defects = [], className }) {
           const confStyle = confidenceStyle(defect.confidence)
           const { label: confLabel, cls: confCls } = confidenceLabel(defect.confidence)
           const bb = defect.boundingBox
+          const isSelected = selectedDefectIndex === idx
 
           return (
             <div
               key={idx}
-              className="glass-card p-4 flex items-start gap-4 animate-slide-up hover:border-white/20 transition-all"
+              onMouseEnter={() => onSelectDefect?.(idx)}
+              onMouseLeave={() => onSelectDefect?.(null)}
+              onClick={() => onSelectDefect?.(isSelected ? null : idx)}
+              className={clsx(
+                'glass-card p-4 flex items-start gap-4 animate-slide-up transition-all duration-200 cursor-pointer',
+                isSelected
+                  ? 'border-primary-500/60 bg-primary-500/15 shadow-glow-blue scale-[1.01]'
+                  : 'hover:border-white/20'
+              )}
               style={{ animationDelay: `${idx * 60}ms` }}
             >
               {/* Icon badge */}

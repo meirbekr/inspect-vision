@@ -48,16 +48,23 @@ export default function DashboardPage() {
       ? 100
       : Math.round(records.reduce((s, r) => s + (r.severityScore ?? 100), 0) / total)
 
-    // Most common defect type
+    // Most common defect type & distribution
     const typeCounts = {}
+    let totalDefectsCount = 0
     records.forEach(r => {
       (r.defects ?? []).forEach(d => {
         typeCounts[d.type] = (typeCounts[d.type] ?? 0) + 1
+        totalDefectsCount += 1
       })
     })
     const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
+    const distribution = Object.entries(typeCounts).map(([type, count]) => ({
+      type,
+      count,
+      pct: totalDefectsCount > 0 ? Math.round((count / totalDefectsCount) * 100) : 0,
+    }))
 
-    return { total, passed, failed, passRate, avgScore, topType }
+    return { total, passed, failed, passRate, avgScore, topType, totalDefectsCount, distribution }
   }, [records])
 
   // ── Recent inspections ─────────────────────────────────────────────────────
@@ -99,31 +106,58 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── Pass / fail bar ────────────────────────────────────────────── */}
+      {/* ── Analytical breakdowns ─────────────────────────────────────── */}
       {!loading && stats.total > 0 && (
-        <div className="glass-card p-5 animate-slide-up delay-300">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="section-title text-base flex items-center gap-2">
-              <Layers size={16} className="text-primary-400" />
-              Pass / Fail Ratio
-            </h2>
-            <span className="text-slate-500 text-sm">{stats.total} total</span>
+        <div className="grid md:grid-cols-2 gap-4 animate-slide-up delay-300">
+          {/* Pass / Fail ratio */}
+          <div className="glass-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="section-title text-base flex items-center gap-2">
+                <Layers size={16} className="text-primary-400" />
+                Pass / Fail Ratio
+              </h2>
+              <span className="text-slate-500 text-sm font-mono">{stats.total} total</span>
+            </div>
+            <div className="h-3 rounded-full bg-surface-700 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-success-500 to-success-400 transition-all duration-1000"
+                style={{ width: `${stats.passRate}%` }}
+              />
+            </div>
+            <div className="flex justify-between mt-2 text-xs text-slate-500">
+              <span className="flex items-center gap-1">
+                <CheckCircle2 size={11} className="text-success-400" />
+                {stats.passed} Passed ({stats.passRate}%)
+              </span>
+              <span className="flex items-center gap-1">
+                <AlertTriangle size={11} className="text-danger-400" />
+                {stats.failed} Failed
+              </span>
+            </div>
           </div>
-          <div className="h-3 rounded-full bg-surface-700 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-success-500 to-success-400 transition-all duration-1000"
-              style={{ width: `${stats.passRate}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-2 text-xs text-slate-500">
-            <span className="flex items-center gap-1">
-              <CheckCircle2 size={11} className="text-success-400" />
-              {stats.passed} Passed ({stats.passRate}%)
-            </span>
-            <span className="flex items-center gap-1">
-              <AlertTriangle size={11} className="text-danger-400" />
-              {stats.failed} Failed
-            </span>
+
+          {/* Defect distribution */}
+          <div className="glass-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="section-title text-base flex items-center gap-2">
+                <AlertTriangle size={16} className="text-warning-400" />
+                Распределение дефектов
+              </h2>
+              <span className="text-slate-500 text-sm font-mono">{stats.totalDefectsCount} дефектов</span>
+            </div>
+            {stats.distribution.length === 0 ? (
+              <p className="text-slate-500 text-xs py-2">Дефекты не зафиксированы</p>
+            ) : (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {stats.distribution.map(({ type, count, pct }) => (
+                  <div key={type} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-800 border border-white/5 text-xs">
+                    <span className="font-medium text-slate-200 capitalize">{type}</span>
+                    <span className="font-mono text-primary-400 font-bold">{count}</span>
+                    <span className="text-slate-500 text-[10px]">({pct}%)</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ShieldAlert, ShieldCheck } from 'lucide-react'
 import clsx from 'clsx'
 import DefectOverlay from './DefectOverlay'
@@ -5,7 +6,9 @@ import DefectList from './DefectList'
 import InspectionCard from './InspectionCard'
 
 export default function InspectionViewer({ inspection }) {
-  if (!inspection) return null;
+  const [selectedDefectIndex, setSelectedDefectIndex] = useState(null)
+
+  if (!inspection) return null
 
   return (
     <>
@@ -32,12 +35,17 @@ export default function InspectionViewer({ inspection }) {
         <DefectOverlay
           imageUrl={inspection.imageUrl}
           defects={inspection.defects}
+          selectedDefectIndex={selectedDefectIndex}
         />
       </div>
 
       <div className="flex flex-col gap-4 animate-slide-up">
         <InspectionCard inspection={inspection} compact />
-        <DefectList defects={inspection.defects} />
+        <DefectList
+          defects={inspection.defects}
+          selectedDefectIndex={selectedDefectIndex}
+          onSelectDefect={setSelectedDefectIndex}
+        />
       </div>
     </>
   )

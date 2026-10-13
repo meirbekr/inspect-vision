@@ -6,8 +6,16 @@
  */
 
 import { useCallback, useRef, useState } from 'react'
-import { AlertCircle, CheckCircle2, ImagePlus, Loader2, Upload, X } from 'lucide-react'
+import {
+  AlertCircle, CheckCircle2, ImagePlus, Loader2,
+  Sparkles, Upload, X
+} from 'lucide-react'
 import clsx from 'clsx'
+import {
+  createCleanSampleFile,
+  createCrackSampleFile,
+  createDefectiveSampleFile
+} from '../utils/demoSamples'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png']
 const MAX_SIZE_BYTES = 10 * 1024 * 1024
@@ -20,6 +28,7 @@ export default function ImageUploader({ onSubmit, loading, error, onClearError }
   const [preview, setPreview]       = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [localError, setLocalError] = useState(null)
+  const [sampleLoading, setSampleLoading] = useState(null)
   const inputRef = useRef(null)
 
   // ── File validation & preview ─────────────────────────────────────────────
@@ -55,6 +64,20 @@ export default function ImageUploader({ onSubmit, loading, error, onClearError }
   const handleChange = (e) => {
     const file = e.target.files?.[0]
     if (file) processFile(file)
+  }
+
+  // ── Quick demo sample loader ─────────────────────────────────────────────
+  const handleLoadSample = async (type) => {
+    setSampleLoading(type)
+    try {
+      let file
+      if (type === 'clean') file = await createCleanSampleFile()
+      else if (type === 'crack') file = await createCrackSampleFile()
+      else if (type === 'defects') file = await createDefectiveSampleFile()
+      if (file) processFile(file)
+    } finally {
+      setSampleLoading(null)
+    }
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
@@ -152,6 +175,44 @@ export default function ImageUploader({ onSubmit, loading, error, onClearError }
           className="hidden"
           aria-label="Upload product image"
         />
+      </div>
+
+      {/* ── Quick Demo Samples ───────────────────────────────────────────── */}
+      <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-surface-800/40 border border-white/5 animate-slide-up">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <Sparkles size={14} className="text-primary-400" />
+          <span className="font-semibold text-slate-300">Быстрые демо-образцы:</span>
+          <span>загрузка в 1 клик для тестирования</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => handleLoadSample('clean')}
+            disabled={loading || sampleLoading !== null}
+            className="px-2.5 py-1.5 rounded-lg border border-success-500/30 bg-success-500/10 hover:bg-success-500/20 text-success-300 text-xs font-medium transition-all flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {sampleLoading === 'clean' ? <Loader2 size={12} className="animate-spin" /> : <span className="w-2 h-2 rounded-full bg-success-400" />}
+            Чистая деталь (Pass)
+          </button>
+          <button
+            type="button"
+            onClick={() => handleLoadSample('crack')}
+            disabled={loading || sampleLoading !== null}
+            className="px-2.5 py-1.5 rounded-lg border border-danger-500/30 bg-danger-500/10 hover:bg-danger-500/20 text-danger-300 text-xs font-medium transition-all flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {sampleLoading === 'crack' ? <Loader2 size={12} className="animate-spin" /> : <span className="w-2 h-2 rounded-full bg-danger-400" />}
+            Трещина (Crack)
+          </button>
+          <button
+            type="button"
+            onClick={() => handleLoadSample('defects')}
+            disabled={loading || sampleLoading !== null}
+            className="px-2.5 py-1.5 rounded-lg border border-warning-500/30 bg-warning-500/10 hover:bg-warning-500/20 text-warning-300 text-xs font-medium transition-all flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {sampleLoading === 'defects' ? <Loader2 size={12} className="animate-spin" /> : <span className="w-2 h-2 rounded-full bg-warning-400" />}
+            Царапины и вмятины
+          </button>
+        </div>
       </div>
 
       {/* ── Error banner ────────────────────────────────────────────────── */}

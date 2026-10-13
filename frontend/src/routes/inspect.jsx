@@ -4,6 +4,7 @@
  * Real-time inspection view: upload image → run AI → view annotated result.
  */
 
+import { useEffect } from 'react'
 import { RotateCcw, ScanSearch } from 'lucide-react'
 import clsx from 'clsx'
 import ImageUploader  from '../components/ImageUploader'
@@ -21,6 +22,16 @@ export default function InspectPage() {
   } = useInspection()
 
   const hasResult = !!currentInspection
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && hasResult) {
+        resetCurrent()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [hasResult, resetCurrent])
 
   return (
     <div className="flex flex-col gap-6">
